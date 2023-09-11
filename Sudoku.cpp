@@ -93,35 +93,36 @@ void createHints(int sudokuProblem[9][9], int row, int col, int hint[9], int row
 int main()
 {
   string choices[25] = {
-      "Provide an answer for this cell",
-      "Check another cell",
+      "Provide an answer for this Cell",
+      "Check another Cell",
       "Reset the Puzzle",
-      "Exit the application \n"};
+      "Exit the Application \n"};
 
   int choice;
 
   while (1)
   {
     printPuzzle(sudokuProblem);
-    choice = menu("\n What action do you like to perform? \n", choices, 4);
+    choice = menu("\n What action do you like to Perform? \n", choices, 4);
     switch (choice)
     {
     case 0:
       int row, col, value;
-      cout << "Enter the row (1-9): ";
+      cout << "Provide an Answer for this Cell \n";
+      cout << "Enter the Row (1-9): ";
       cin >> row;
-      cout << "Enter the column (a-i): ";
+      cout << "Enter the Column (a-i): ";
       char colChar;
       cin >> colChar;
       col = colChar - 'a';
-      cout << "Enter the value (1-9): ";
+      cout << "Enter the Value (1-9): ";
       cin >> value;
       sudokuProblem[row - 1][col] = value;
       cout << endl;
       int hint[9], rowHints[9], columnHints[9], boxHints[9];
       createHints(sudokuProblem, row - 1, col, hint, rowHints, columnHints, boxHints);
       cout << endl;
-      cout << "Hints for cell (" << row << ", " << colChar << "): ";
+      cout << "Hints for Cell (" << row << ", " << colChar << "): ";
       cout << endl;
       cout << "\nRow Hint: ";
       for (int i = 0; i < 9; i++)
@@ -156,14 +157,15 @@ int main()
       break;
 
     case 1:
-      cout << "Enter the row 1-9: ";
+      cout << "Check Another Cell \n";
+      cout << "Enter the Row 1-9: ";
       cin >> row;
-      cout << "Enter the column a-i: ";
+      cout << "Enter the Column a-i: ";
       cin >> colChar;
       col = colChar - 'a';
-      cout << "Value in cell (" << row << ", " << colChar << "): " << sudokuProblem[row - 1][col] << endl;
+      cout << "Value in Cell (" << row << ", " << colChar << "): " << sudokuProblem[row - 1][col] << endl;
       cout << endl;
-      cout << "Hints for cell (" << row << ", " << colChar << "): ";
+      cout << "Hints for Cell (" << row << ", " << colChar << "): ";
       cout << endl;
       createHints(sudokuProblem, row - 1, col, hint, rowHints, columnHints, boxHints);
       cout << "\nRow Hint: ";
