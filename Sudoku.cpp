@@ -42,12 +42,12 @@ void printPuzzle(int sudokuProblem[9][9]);
 
 int menu(string question, string choices[25], int choiceCount);
 
-void createHints(int sudokuProblem[9][9], int row, int col, int hints[9], int rowHints[9], int columnHints[9], int boxHints[9])
+void createHints(int sudokuProblem[9][9], int row, int col, int hint[9], int rowHints[9], int columnHints[9], int boxHints[9])
 {
 
   for (int i = 0; i < 9; i++)
   {
-    hints[i] = 0;
+    hint[i] = 0;
     rowHints[i] = 0;
     columnHints[i] = 0;
     boxHints[i] = 0;
@@ -84,7 +84,7 @@ void createHints(int sudokuProblem[9][9], int row, int col, int hints[9], int ro
 
   for (int i = 0; i < 9; i++)
   {
-    hints[i] = rowHints[i] || columnHints[i] || boxHints[i] ? 1 : 0;
+    hint[i] = rowHints[i] || columnHints[i] || boxHints[i] ? 1 : 0;
   }
 }
 
@@ -118,8 +118,8 @@ int main()
       cin >> value;
       sudokuProblem[row - 1][col] = value;
       cout << endl;
-      int hints[9], rowHints[9], columnHints[9], boxHints[9];
-      createHints(sudokuProblem, row - 1, col, hints, rowHints, columnHints, boxHints);
+      int hint[9], rowHints[9], columnHints[9], boxHints[9];
+      createHints(sudokuProblem, row - 1, col, hint, rowHints, columnHints, boxHints);
       cout << endl;
       cout << "Hints for cell (" << row << ", " << colChar << "): ";
       cout << endl;
@@ -151,6 +151,7 @@ int main()
       cin.get();
       cout << endl;
       cout << "To return to Choices, press ENTER . . . ";
+      cout << endl;
       cin.get();
       break;
 
@@ -164,7 +165,7 @@ int main()
       cout << endl;
       cout << "Hints for cell (" << row << ", " << colChar << "): ";
       cout << endl;
-      createHints(sudokuProblem, row - 1, col, hints, rowHints, columnHints, boxHints);
+      createHints(sudokuProblem, row - 1, col, hint, rowHints, columnHints, boxHints);
       cout << "\nRow Hint: ";
       for (int i = 0; i < 9; i++)
       {
@@ -193,6 +194,7 @@ int main()
       cin.get();
       cout << endl;
       cout << "To return to Choices, press ENTER . . . ";
+      cout << endl;
       cin.get();
       break;
 
