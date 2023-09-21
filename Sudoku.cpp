@@ -6,11 +6,7 @@ involves several steps. Below is a step-by-step procedure for implementing this 
 /*Laboratory 2 Activity #1 */
 
 /*Leader: ALlen Jefferson C. Orcino
-  Member:
-  Carl Angelo Recodig
-  John Carlo Reyes // seen but no respond
-  John Carlo Pante // No seen No respond
-*/
+ */
 
 #include <iostream>
 #include <string>
@@ -19,220 +15,315 @@ using namespace std;
 
 const int MAX_COL = 9, MAX_ROW = 9;
 int sudokuProblem[9][9] = {
-    {0, 0, 0, 0, 4, 0, 9, 0, 0}, // 1 000040900
-    {0, 8, 0, 6, 7, 0, 0, 0, 0}, // 2 080670000
-    {9, 0, 2, 8, 0, 0, 4, 0, 0}, // 3 902800400
-    {0, 9, 1, 0, 0, 0, 0, 0, 0}, // 4 091000000
-    {0, 4, 0, 3, 6, 0, 0, 0, 2}, // 5 040360002
-    {0, 0, 0, 0, 0, 0, 5, 0, 4}, // 6 000000504
-    {0, 0, 0, 0, 0, 0, 7, 0, 1}, // 7 000000701
-    {0, 2, 8, 0, 0, 1, 0, 3, 0}, // 8 028001030
-    {1, 0, 3, 7, 0, 6, 8, 0, 0}  // 9 103706800
-},
-    sudokuAnswer[9][9];
+    {5, 3, 0, 0, 7, 0, 0, 0, 0},
+    {6, 0, 0, 1, 9, 5, 0, 0, 0},
+    {0, 9, 8, 0, 0, 0, 0, 6, 0},
+    {8, 0, 0, 0, 6, 0, 0, 0, 3},
+    {4, 0, 0, 8, 0, 3, 0, 0, 1},
+    {7, 0, 0, 0, 2, 0, 0, 0, 6},
+    {0, 6, 0, 0, 0, 0, 2, 8, 0},
+    {0, 0, 0, 4, 1, 9, 0, 0, 5},
+    {0, 0, 0, 0, 8, 0, 0, 7, 9}};
+int sudokuAnswer[9][9];
 
-int columnLocation, rowLocation,
-    boxColumnLocation, boxRowLocation;
+int columnLocation, rowLocation, boxColumnLocation, boxRowLocation; // various location for analysis
+int rowValues[9], columnValues[9], boxValues[9];                    // various values for analysis
+int rowHints[9], columnHints[9], boxHints[9], uniqueHints[9];       // Various hints for analysis
 
-int rowValues[9], columnValues[9], boxValues[9],
-    rowHints[9], columnHints[9], boxHints[9],
-    uniqueHints[9];
-
+void input();
+void rowAssignment(int row, string rowValueStr);
+void sudokuPuzzleAnalyzer();
+void sudokuPuzzleAnswers();
 void printPuzzle(int sudokuProblem[9][9]);
-
 int menu(string question, string choices[25], int choiceCount);
+void rowValue(int row);
+void columnValue(int column);
+void boxValue();
+void hint();
+bool inUniqueHints(int value);
+void printValues(int values[9]);
+void resetPuzzleAnswers(int sodokuProblem[9][9], int sudokuAnswer[9][9]);
+//  prototype
 
-void createHints(int sudokuProblem[9][9], int row, int col, int hint[9], int rowHints[9], int columnHints[9], int boxHints[9])
+void resetPuzzleAnswers()
 {
-
+  // Resets only user-answered cells
   for (int i = 0; i < 9; i++)
   {
-    hint[i] = 0;
-    rowHints[i] = 0;
-    columnHints[i] = 0;
-    boxHints[i] = 0;
-  }
-
-  for (int i = 0; i < 9; i++)
-  {
-    if (sudokuProblem[row][i] != 0)
+    for (int j = 0; j < 9; j++)
     {
-      rowHints[sudokuProblem[row][i] - 1] = 1;
+      sudokuProblem[i][j] = 0;
+      sudokuAnswer[i][j] = 0;
+    }
+  }
+  cout << "Puzzle reset to the original state." << endl;
+}
+
+void sudokuPuzzleAnswers()
+{
+  int answer;
+  cout << "Please provide the answer for cell (" << columnLocation << ", " << rowLocation << "): ";
+  cin >> answer;
+
+  if (inUniqueHints(answer))
+    sudokuAnswer[rowLocation][columnLocation] = answer;
+  else
+    cout << "You have provided an incorrect answer.";
+}
+
+bool inUniqueHints(int value)
+{
+  // Checks if the answer is in possible hints
+  bool withinHints = false;
+
+  for (int x = 0; x < 9; x++)
+  {
+    if (uniqueHints[x] == 0)
+      continue;
+    if (uniqueHints[x] == value)
+    {
+      withinHints = true;
+      break;
     }
   }
 
-  for (int i = 0; i < 9; i++)
+  return withinHints;
+}
+
+
+
+void sudokuPuzzleAnalyzer()
+{
+  string cellAddress;
+  cout << "\nWhat cell would you like to analyze? ";
+  cin >> cellAddress;
+
+  rowLocation = (int)cellAddress.at(1) - 49;
+  columnLocation = (int)cellAddress.at(0) - 65;
+
+  // Check if the input is valid
+  if (rowLocation < 0 || rowLocation >= MAX_ROW || columnLocation < 0 || columnLocation >= MAX_COL)
   {
-    if (sudokuProblem[i][col] != 0)
-    {
-      columnHints[sudokuProblem[i][col] - 1] = 1;
-    }
+    cout << "Cell address is invalid. Please provide a correct cell number." << endl;
+    return;
   }
 
-  int boxRow = row - row % 3;
-  int boxCol = col - col % 3;
-  for (int i = boxRow; i < boxRow + 3; i++)
-  {
-    for (int j = boxCol; j < boxCol + 3; j++)
-    {
-      if (sudokuProblem[i][j] != 0)
-      {
-        boxHints[sudokuProblem[i][j] - 1] = 1;
-      }
-    }
-  }
+  boxColumnLocation = (columnLocation - columnLocation % 3) / 3;
+  boxRowLocation = (rowLocation - rowLocation % 3) / 3;
 
-  for (int i = 0; i < 9; i++)
+  cout << "Cell Coordinates: (" << columnLocation << ", " << rowLocation << ")" << endl;
+  cout << "Box Coordinates: (" << boxColumnLocation << ", " << boxRowLocation << ")" << endl;
+
+  rowValue(rowLocation);
+  columnValue(columnLocation);
+  boxValue();
+  cout << endl;
+  cout << "Row Values: ";
+  printValues(rowValues);
+  cout << "Column Values: ";
+  printValues(columnValues);
+  cout << "Box Values: ";
+  printValues(boxValues);
+  cout << endl;
+  hint();
+  cout << "Row Hints: ";
+  printValues(rowHints);
+  cout << "Column Hints: ";
+  printValues(columnHints);
+  cout << "Box Hints: ";
+  printValues(boxHints);
+  cout << endl;
+  cout << "Possible Answer: ";
+  printValues(uniqueHints);
+  cout << endl;
+  cin.get();
+  cout << "Successful . . . ";
+  cin.get();
+  cout << endl;
+}
+
+void rowValue(int row)
+{
+  for (int col = 0; col < MAX_COL; col++)
+    rowValues[col] = sudokuAnswer[row][col];
+}
+
+void columnValue(int column)
+{
+  for (int row = 0; row < MAX_ROW; row++)
+    columnValues[row] = sudokuAnswer[row][column];
+}
+
+void boxValue()
+{
+  // Retrieves values from the box
+  int startRow = boxRowLocation * 3, startCol = boxColumnLocation * 3,
+      endRow = startRow + 2, endCol = startCol + 2;
+
+  for (int row = startRow; row <= endRow; row++)
   {
-    hint[i] = rowHints[i] || columnHints[i] || boxHints[i] ? 1 : 0;
+    for (int col = startCol; col <= endCol; col++)
+    {
+      boxValues[(col - startCol) + (row - startRow) * 3] = sudokuAnswer[row][col];
+    }
   }
 }
 
-/*void createValue();*/
+void hint()
+{
+  // Generates hints for row, column, and box
+  for (int x = 0; x < 9; x++)
+  {
+    rowHints[x] = x + 1;
+    columnHints[x] = x + 1;
+    boxHints[x] = x + 1;
+
+    if (rowValues[x] > 0)
+      rowHints[rowValues[x] - 1] = 0;
+    if (columnValues[x] > 0)
+      columnHints[columnValues[x] - 1] = 0;
+    if (boxValues[x] > 0)
+      boxHints[boxValues[x] - 1] = 0;
+  }
+
+  // Generates unique hints
+  for (int x = 0; x < 9; x++)
+  {
+    if (rowHints[x] == (x + 1) && columnHints[x] == (x + 1) && boxHints[x] == (x + 1))
+      uniqueHints[x] = x + 1;
+    else
+      uniqueHints[x] = 0;
+  }
+}
+
+void printValues(int values[9])
+{
+  int hintCount = 0;
+  for (int x = 0; x < MAX_COL; x++)
+  {
+    if (values[x] == 0)
+      continue;
+    if (hintCount > 0)
+      cout << ", ";
+    cout << values[x];
+    hintCount++;
+  }
+  cout << endl;
+}
+
+void input()
+// user input
+{
+  string rowValue;
+  cout << "+----------------------------------------------------------------------------------+\n";
+  cout << "| Please provide a Sudoku Problem                                                  |\n";
+  cout << "| Please enter the values for each row in the following format (e.g., 000100200):: |\n";
+  cout << "+----------------------------------------------------------------------------------+\n";
+  cout << endl;
+
+  for (int row = 0; row < MAX_ROW; row++)
+  {
+    bool inValid = false;
+    while (!inValid)
+    {
+      cout << "\nPlease enter value for Row # " << row + 1 << ": ";
+      cin >> rowValue;
+
+      // Check if the input is valid
+      inValid = true;
+      for (char c : rowValue)
+      {
+        if (c < '0' || c > '9')
+        {
+          inValid = false;
+          break;
+        }
+      }
+
+      if (!inValid)
+      {
+        cout << "Invalid data. Please only input digits 0 through 9." << endl;
+        cin.clear();
+      }
+      else
+      {
+        // Check if the row value adheres to Sudoku rules
+        bool validSudokuRow = true;
+        for (char c : rowValue)
+        {
+          int num = c - '0';
+          if (num < 0 || num > 9)
+          {
+            validSudokuRow = false;
+            break;
+          }
+        }
+
+        if (!validSudokuRow)
+        {
+          cout << "Invalid data. Values from Sudoku must bet." << endl;
+          inValid = false;
+        }
+      }
+    }
+
+    rowAssignment(row, rowValue);
+  }
+}
+
+void rowAssignment(int row, string rowValueStr)
+{
+  // Assigns row values based on user input
+  for (int x = 0; x < MAX_COL; x++)
+    sudokuAnswer[row][x] = (int)rowValueStr.at(x) - '0';
+}
 
 int main()
 {
+
   string choices[25] = {
-      "Provide an answer for this Cell",
-      "Check another Cell",
+      "Provide an answer for this cell",
+      "Check another cell",
       "Reset the Puzzle",
-      "Exit the Application \n"};
+      "Exit the application"};
 
-  int choice;
+  cout << "+-----------------------------------+\n";
+  cout << "| Leader: Allen Jefferson C. Orcino |\n";
+  cout << "| Member: Carl Angelo Recodig       |\n";
+  cout << "+-----------------------------------+\n";
+  cout << endl;
 
-  while (1)
+  input(); // Collects initial Sudoku problem from the user
+
+  while (1) // use while for looping
   {
-    printPuzzle(sudokuProblem);
-    choice = menu("\n What action do you like to Perform? \n", choices, 4);
-    switch (choice)
+    cout << endl;
+    printPuzzle(sudokuAnswer);
+    sudokuPuzzleAnalyzer();
+
+    switch (menu("What action do you like to perform? ", choices, 4))
     {
     case 0:
-      int row, col, value;
-      cout << "Provide an Answer for this Cell \n";
-      cout << "Enter the Row (1-9): ";
-      cin >> row;
-      cout << "Enter the Column (a-i): ";
-      char colChar;
-      cin >> colChar;
-      col = colChar - 'a';
-      cout << "Enter the Value (1-9): ";
-      cin >> value;
-      sudokuProblem[row - 1][col] = value;
-      cout << endl;
-      int hint[9], rowHints[9], columnHints[9], boxHints[9];
-      createHints(sudokuProblem, row - 1, col, hint, rowHints, columnHints, boxHints);
-      cout << endl;
-      cout << "Hints for Cell (" << row << ", " << colChar << "): ";
-      cout << endl;
-      cout << "\nRow Hint: ";
-      for (int i = 0; i < 9; i++)
-      {
-        if (rowHints[i] == 0)
-        {
-          cout << i + 1 << " ";
-        }
-      }
-      cout << "\nColumn Hint: ";
-      for (int i = 0; i < 9; i++)
-      {
-        if (columnHints[i] == 0)
-        {
-          cout << i + 1 << " ";
-        }
-      }
-      cout << "\nBox Hint: ";
-      for (int i = 0; i < 9; i++)
-      {
-        if (boxHints[i] == 0)
-        {
-          cout << i + 1 << " ";
-        }
-      }
-      cout << endl;
-      cin.get();
-      cout << endl;
-      cout << "To return to Choices, press ENTER . . . ";
-      cout << endl;
-      cin.get();
+      sudokuPuzzleAnswers(); // Allows the user to provide an answer for a cell
       break;
-
-    case 1:
-      cout << "Check Another Cell \n";
-      cout << "Enter the Row 1-9: ";
-      cin >> row;
-      cout << "Enter the Column a-i: ";
-      cin >> colChar;
-      col = colChar - 'a';
-      cout << "Value in Cell (" << row << ", " << colChar << "): " << sudokuProblem[row - 1][col] << endl;
-      cout << endl;
-      cout << "Hints for Cell (" << row << ", " << colChar << "): ";
-      cout << endl;
-      createHints(sudokuProblem, row - 1, col, hint, rowHints, columnHints, boxHints);
-      cout << "\nRow Hint: ";
-      for (int i = 0; i < 9; i++)
-      {
-        if (rowHints[i] == 0)
-        {
-          cout << i + 1 << " ";
-        }
-      }
-      cout << "\nColumn Hint: ";
-      for (int i = 0; i < 9; i++)
-      {
-        if (columnHints[i] == 0)
-        {
-          cout << i + 1 << " ";
-        }
-      }
-      cout << "\nBox Hint: ";
-      for (int i = 0; i < 9; i++)
-      {
-        if (boxHints[i] == 0)
-        {
-          cout << i + 1 << " ";
-        }
-      }
-      cout << endl;
-      cin.get();
-      cout << endl;
-      cout << "To return to Choices, press ENTER . . . ";
-      cout << endl;
-      cin.get();
-      break;
-
     case 2:
-      for (int i = 0; i < MAX_ROW; i++)
-      {
-        for (int j = 0; j < MAX_COL; j++)
-        {
-          sudokuProblem[i][j] = sudokuAnswer[i][j];
-        }
-      }
+      resetPuzzleAnswers();
       cout << "Puzzle reset to the original state." << endl;
-      cout << endl;
-      cin.get();
-      cout << "To return to Choices, press ENTER . . . ";
-      cin.get();
       break;
-
     case 3:
-      cout << "Exiting the application." << endl;
-      cout << endl;
       cin.get();
       cout << endl;
-      cout << "Thank you! and God bless!";
       cout << endl;
+      cout << "Thank you for playing sudoku . . . ";
       cout << endl;
       cin.get();
       exit(1);
       break;
-
-    default:
-      cout << "Invalid choice. Please try again." << endl;
     }
   }
 }
 
+// sudoku probloem row and column
 void printPuzzle(int sudokuProblem[9][9])
 {
   char rowLabels[] = {'1', '2', '3', '4', '5', '6', '7', '8', '9'},
@@ -246,7 +337,7 @@ void printPuzzle(int sudokuProblem[9][9])
       cout << "   " << colLabels[x];
   }
   cout << endl;
-  cout << ("\n  ╔═══╤═══╤═══╦═══╤═══╤═══╦═══╤═══╤═══╗\n");
+
   for (int row = 0; row < MAX_ROW; row++)
   {
     for (int col = 0; col < MAX_COL; col++)
