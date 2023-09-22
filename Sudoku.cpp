@@ -6,6 +6,7 @@ involves several steps. Below is a step-by-step procedure for implementing this 
 /*Laboratory 2 Activity #1 */
 
 /*Leader: ALlen Jefferson C. Orcino
+  Member: Carl Angelo Recodigs
  */
 
 #include <iostream>
@@ -14,16 +15,7 @@ involves several steps. Below is a step-by-step procedure for implementing this 
 using namespace std;
 
 const int MAX_COL = 9, MAX_ROW = 9;
-int sudokuProblem[9][9] = {
-    {5, 3, 0, 0, 7, 0, 0, 0, 0},
-    {6, 0, 0, 1, 9, 5, 0, 0, 0},
-    {0, 9, 8, 0, 0, 0, 0, 6, 0},
-    {8, 0, 0, 0, 6, 0, 0, 0, 3},
-    {4, 0, 0, 8, 0, 3, 0, 0, 1},
-    {7, 0, 0, 0, 2, 0, 0, 0, 6},
-    {0, 6, 0, 0, 0, 0, 2, 8, 0},
-    {0, 0, 0, 4, 1, 9, 0, 0, 5},
-    {0, 0, 0, 0, 8, 0, 0, 7, 9}};
+int sudokuProblem[9][9] = {};
 int sudokuAnswer[9][9];
 
 int columnLocation, rowLocation, boxColumnLocation, boxRowLocation; // various location for analysis
@@ -32,8 +24,8 @@ int rowHints[9], columnHints[9], boxHints[9], uniqueHints[9];       // Various h
 
 void input();
 void rowAssignment(int row, string rowValueStr);
-void sudokuPuzzleAnalyzer();
-void sudokuPuzzleAnswers();
+void sudokuAnalyzer();
+void sudokuAnswers();
 void printPuzzle(int sudokuProblem[9][9]);
 int menu(string question, string choices[25], int choiceCount);
 void rowValue(int row);
@@ -42,10 +34,10 @@ void boxValue();
 void hint();
 bool inUniqueHints(int value);
 void printValues(int values[9]);
-void resetPuzzleAnswers(int sodokuProblem[9][9], int sudokuAnswer[9][9]);
+void resets(int sodokuProblem[9][9], int sudokuAnswer[9][9]);
 //  prototype
 
-void resetPuzzleAnswers()
+void resets()
 {
   // Resets only user-answered cells
   for (int i = 0; i < 9; i++)
@@ -59,7 +51,7 @@ void resetPuzzleAnswers()
   cout << "Puzzle reset to the original state." << endl;
 }
 
-void sudokuPuzzleAnswers()
+void sudokuAnswers()
 {
   int answer;
   cout << "Please provide the answer for cell (" << columnLocation << ", " << rowLocation << "): ";
@@ -90,9 +82,7 @@ bool inUniqueHints(int value)
   return withinHints;
 }
 
-
-
-void sudokuPuzzleAnalyzer()
+void sudokuAnalyzer()
 {
   string cellAddress;
   cout << "\nWhat cell would you like to analyze? ";
@@ -299,15 +289,15 @@ int main()
   {
     cout << endl;
     printPuzzle(sudokuAnswer);
-    sudokuPuzzleAnalyzer();
+    sudokuAnalyzer();
 
     switch (menu("What action do you like to perform? ", choices, 4))
     {
     case 0:
-      sudokuPuzzleAnswers(); // Allows the user to provide an answer for a cell
+      sudokuAnswers(); // Allows the user to provide an answer for a cell
       break;
     case 2:
-      resetPuzzleAnswers();
+      resets();
       cout << "Puzzle reset to the original state." << endl;
       break;
     case 3:
